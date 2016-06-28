@@ -1,0 +1,34 @@
+Sub ConnectTOOracle()
+ 
+    Dim cn As ADODB.Connection
+    Dim rs As ADODB.Recordset
+    Dim mtxData As Variant
+    
+    Worksheets("Sheet1").Activate
+    ActiveSheet.ListObjects("TEmployees").DataBodyRange.Value = ""
+ 
+ 
+    Set cn = New ADODB.Connection
+    Set rs = New ADODB.Recordset
+    
+    cn.Open ( _
+    "User ID=hr" & _
+    ";Password=oracle_test" & _
+    ";Data Source=oscorp" & _
+    ";Provider=OraOLEDB.Oracle")
+    
+    rs.CursorType = adOpenForwardOnly
+    rs.Open ("select employee_id, first_name || ' ' || last_name from hr.employees where employee_id < 110 order by employee_id"), cn
+    
+    mtxData = Application.Transpose(rs.GetRows)
+    
+    Worksheets("Sheet1").Activate
+    'ActiveSheet.Range("a1:b20") = mtxData
+    ActiveSheet.ListObjects("TEmployees").DataBodyRange.Resize(UBound(mtxData, 1) - LBound(mtxData, 1) + 1, UBound(mtxData, 2) - LBound(mtxData, 2) + 1) = mtxData
+    
+    
+    'Cleanup in the end
+    Set rs = Nothing
+    Set cn = Nothing
+  
+End Sub
